@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Show <%= campgrounds.title %> </title>
-</head>
-<body>
+<% layout("layout/Boilerplate") %> 
     <h1> Show Campground <span style="color: red"><%=   campgrounds.title %></span> </h1>
     <a href="/campgrounds">Back to all Campgrounds</a>
     <a href="/campgrounds/<%= campgrounds.id %>/edit ">edit</a>
-</body>
-</html>
