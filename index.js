@@ -2,18 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose")
 const ejsMate = require("ejs-mate");
 const path = require("path");
-const Campground = require("./models/campground")
 const { campgroundSchema, reviewSchema } = require('./shemas.js');
 const method0verride = require("method-override");
-const catchAsync = require("./utils/catchAsync");
 const ExpressError = require("./utils/ExpressError");
-const joi = require("joi");
-const Joi = require("joi");
-const Review = require("./models/review");
 const campgrounds = require("./routes/campground")
 const reviews = require("./routes/reviews")
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user");
+const userRoutes = require("./routes/users")
+
 
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
@@ -51,6 +51,13 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 
+app.use(passport.initialize())
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()))
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 const validateCampground = (req, res, next) => {
     const { error } = campgroundSchema.validate(req.body);
     if (error) {
@@ -72,13 +79,18 @@ const validateReview = (req, res, next) => {
 }
 
 app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error")
     next();
 })
 
+
+
 app.use("/campgrounds", campgrounds)
 app.use("/campgrounds/:id/reviews", reviews);
+app.use("/", userRoutes)
+
 
 app.get("/", (req, res) => {
     res.render("home");
