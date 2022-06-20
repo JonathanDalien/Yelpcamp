@@ -3,8 +3,10 @@ const passport = require("passport");
 const router = express.Router();
 const User = require("../models/user");
 const catchAsync = require("../utils/catchAsync");
+const { isLoggedIn2 } = require("../middleware");
 
-router.get("/register", (req, res, next) => {
+
+router.get("/register", isLoggedIn2, (req, res, next) => {
     res.render("users/register")
 })
 
@@ -24,7 +26,7 @@ router.post("/register", catchAsync(async (req, res, next) => {
     }
 }));
 
-router.get("/login", (req, res, next) => {
+router.get("/login", isLoggedIn2, (req, res, next) => {
     res.render("users/login")
 })
 
@@ -35,12 +37,10 @@ router.post("/login", passport.authenticate("local", { failureFlash: true, failu
     res.redirect(redirectUrl)
 })
 
-router.get("/logout", (req, res) => {
-    req.logout(function (err) {
-        if (err) { return next(err); }
-        req.flash('success', "Goodbye!");
-        res.redirect('/campgrounds');
-    });
-});
+router.get('/logout', (req, res) => {
+    req.logout();
+    req.flash('success', "Goodbye!");
+    res.redirect('/campgrounds');
+})
 
 module.exports = router;
